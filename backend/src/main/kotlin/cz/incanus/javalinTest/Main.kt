@@ -32,7 +32,10 @@ fun main() {
         .create { config ->
             config.showJavalinBanner = false
             config.defaultContentType = "application/json"
+
             config.enableDevLogging()
+
+            config.enableCorsForAllOrigins()
         }
         .routes {
             get("/") { ctx -> ctx.json(listOf("viewsets")) }

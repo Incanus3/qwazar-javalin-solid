@@ -1,26 +1,58 @@
-import type { Component } from 'solid-js';
+import { Link, Route, Router, Routes } from '@solidjs/router';
+import { Component, createResource, For, Show } from 'solid-js';
+import { getViewsets } from './api';
+import { Viewset } from './models';
 
-import logo from './logo.svg';
-import styles from './App.module.css';
+const View: Component<{ viewset: string, view: string }> = (props) => {
+  return <p>rendering view {props.view} of viewset {props.viewset}</p>
+}
+
+const ViewRoutes: Component<{ viewsets: Viewset[] }> = (props) => {
+  const viewRoute = (viewset: Viewset, viewName: string) =>
+    <Route path={viewName} element={<View viewset={viewset.name} view={viewName} />} />
+
+  return (
+    <Routes>
+      <Route path="/" element={<p>rendering root page</p>} />
+      <For each={props.viewsets}>{(viewset) =>
+        <Route path={viewset.name}>
+          <For each={Object.keys(viewset.views)}>{(viewName) =>
+            viewRoute(viewset, viewName)
+          }</For>
+        </Route>
+      }</For>
+    </Routes>
+  )
+}
+
+const ViewLinks: Component<{ viewsets: Viewset[] }> = (props) => {
+  const link = (path: string) => <Link href={path}>{path}</Link>
+
+  return (
+    <ul>
+      <li>{link('/')}</li>
+      <For each={props.viewsets}>{(viewset) =>
+        <For each={Object.keys(viewset.views)}>{(viewName) =>
+          <li>{link(`/${viewset.name}/${viewName}`)}</li>
+        }</For>
+      }</For>
+    </ul>
+  )
+}
 
 const App: Component = () => {
+  const [data] = createResource(getViewsets)
+  const viewsets = () => data() ?? []
+
   return (
-    <div class={styles.App}>
-      <header class={styles.header}>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
-      </header>
-    </div>
+    <Show when={!data.loading} fallback={<p>načítám</p>}>
+      {JSON.stringify(data())}
+
+      <Router>
+        <ViewLinks viewsets={viewsets()} />
+        <ViewRoutes viewsets={viewsets()} />
+      </Router>
+    </Show>
   );
 };
 
