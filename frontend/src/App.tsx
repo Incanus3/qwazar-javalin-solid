@@ -1,15 +1,27 @@
 import { Link, Route, Router, Routes } from '@solidjs/router';
-import { Component, createResource, For, Show } from 'solid-js';
-import { getViewsets } from './api';
+import { Component, createResource, ErrorBoundary, For, Show } from 'solid-js';
+import { getView, getViewsets } from './api';
 import { Viewset } from './models';
+import { LinkWidget, renderWidget, WidgetProps } from './widgets';
 
-const View: Component<{ viewset: string, view: string }> = (props) => {
-  return <p>rendering view {props.view} of viewset {props.viewset}</p>
+const View: Component<{ viewset: Viewset, viewName: string }> = (props) => {
+  const [data] = createResource(() => getView(props.viewset, props.viewName))
+
+  return (
+    <ErrorBoundary
+      fallback={(err, reset) => <div onClick={reset}>{err.toString()}</div>}
+    >
+      <p>rendering view {props.viewName} of viewset {props.viewset.name}</p>
+      <Show when={!data.loading} fallback={<p>načítám</p>}>
+        {renderWidget(data() as WidgetProps)}
+      </Show>
+    </ErrorBoundary >
+  )
 }
 
 const ViewRoutes: Component<{ viewsets: Viewset[] }> = (props) => {
   const viewRoute = (viewset: Viewset, viewName: string) =>
-    <Route path={viewName} element={<View viewset={viewset.name} view={viewName} />} />
+    <Route path={viewName} element={<View viewset={viewset} viewName={viewName} />} />
 
   return (
     <Routes>
@@ -26,14 +38,12 @@ const ViewRoutes: Component<{ viewsets: Viewset[] }> = (props) => {
 }
 
 const ViewLinks: Component<{ viewsets: Viewset[] }> = (props) => {
-  const link = (path: string) => <Link href={path}>{path}</Link>
-
   return (
     <ul>
-      <li>{link('/')}</li>
+      <li><Link href="/">/</Link></li>
       <For each={props.viewsets}>{(viewset) =>
         <For each={Object.keys(viewset.views)}>{(viewName) =>
-          <li>{link(`/${viewset.name}/${viewName}`)}</li>
+          <li><LinkWidget viewsetName={viewset.name} viewName={viewName} /></li>
         }</For>
       }</For>
     </ul>

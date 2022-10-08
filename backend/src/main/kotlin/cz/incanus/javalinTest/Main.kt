@@ -3,16 +3,24 @@ package cz.incanus.javalinTest
 import com.fasterxml.jackson.core.JacksonException
 import cz.incanus.javalinTest.common.BadRequest
 import cz.incanus.javalinTest.common.NotFound
-import cz.incanus.javalinTest.viewsets.Button
+import cz.incanus.javalinTest.viewsets.Viewset
 import cz.incanus.javalinTest.viewsets.ViewsetRegistry
 import cz.incanus.javalinTest.viewsets.ViewsetRouter
+import cz.incanus.javalinTest.widgets.Link
+import cz.incanus.javalinTest.widgets.Text
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.HttpCode
 
-val HomeViewset = ViewsetRegistry.viewSet("home") {
+// FIXME: this is problematic, because we have no way of accessing the viewset inside render
+val HomeViewset: Viewset = ViewsetRegistry.viewSet("home") {
     view("main") {
-        Button("Press me")
+        // Button("Press me")
+        Link("home", "other")
+    }
+
+    view("other") {
+        Text("asdf")
     }
 }
 

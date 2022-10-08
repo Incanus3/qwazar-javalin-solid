@@ -1,5 +1,7 @@
 package cz.incanus.javalinTest.viewsets
 
+import cz.incanus.javalinTest.widgets.Widget
+
 class ViewsetBuilder(private val name: String) {
     private val views = mutableMapOf<String, View>()
 

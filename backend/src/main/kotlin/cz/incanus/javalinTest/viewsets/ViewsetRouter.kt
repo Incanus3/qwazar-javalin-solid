@@ -23,10 +23,6 @@ class ViewsetRouter : Router() {
 
                     path(placeholder(ViewsetHandler.viewNameParam)) {
                         get("") {
-                            ViewsetHandler(it).view()
-                        }
-
-                        get("render") {
                             ViewsetHandler(it).renderView()
                         }
                     }

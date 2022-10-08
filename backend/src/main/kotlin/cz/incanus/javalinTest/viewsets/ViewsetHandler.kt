@@ -22,10 +22,6 @@ class ViewsetHandler(context: Context) : Handler(context) {
         json(viewset.views)
     }
 
-    fun view() {
-        json(view)
-    }
-
     fun renderView() {
         json(view.render(ViewContext()))
     }
